@@ -71,6 +71,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
     "jest": "^27.0.6",
+    "pre-commit": "^1.2.2",
     "prettier": "^2.3.2",
     "sqlite3": "^5.0.2",
     "supertest": "^6.1.3",
@@ -80,7 +81,8 @@
     "tsconfig-paths": "^3.10.1",
     "typescript": "^4.3.5"
   },
-"pre-push": "test --maxWorkers=25%",
+  "pre-commit": "format:quick",
+  "pre-push": "test --maxWorkers=25%",
   "jest": {
     "moduleFileExtensions": [
       "js",
