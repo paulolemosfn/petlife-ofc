@@ -4,6 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { RelationalEntity } from '../../../common/entities/metadata/RelationalEntity';
@@ -18,9 +19,6 @@ export class PetsEntity extends RelationalEntity {
   pet_name: string;
 
   @Column({ type: 'uuid', nullable: true })
-  owner_id: string;
-
-  @Column({ type: 'uuid', nullable: true })
   user_id: string;
 
   @Column()
@@ -32,17 +30,10 @@ export class PetsEntity extends RelationalEntity {
   @Column()
   pet_type: string;
 
-  @Column()
-  activity: string;
-
-  @Column()
-  activity_date: string;
-
   @ManyToOne(() => UsersEntity)
   @JoinColumn({ name: 'user_id' })
   user: UsersEntity;
 
-  @ManyToOne(() => OwnersEntity)
-  @JoinColumn({ name: 'owner_id' })
+  @OneToMany(() => OwnersEntity, (owners) => owners.pets, { eager: true })
   owner: OwnersEntity;
 }

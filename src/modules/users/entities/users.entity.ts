@@ -1,3 +1,4 @@
+import { PetsEntity } from './../../pets/entities/pets.entity';
 import { RelationalEntity } from '../../../common/entities/metadata/RelationalEntity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { OwnersEntity } from '../../owners/entities/owners.entity';
@@ -21,4 +22,7 @@ export class UsersEntity extends RelationalEntity {
 
   @OneToMany(() => OwnersEntity, (owner) => owner.user, { eager: true })
   owners: OwnersEntity[];
+
+  @OneToMany(() => PetsEntity, (pets) => pets.user, { eager: true })
+  pets: PetsEntity[];
 }
