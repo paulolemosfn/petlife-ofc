@@ -7,7 +7,7 @@ import {
   IsOptional,
 } from 'class-validator';
 import { BaseResponseDTO } from '../../../common/dtos/base.response.dto';
-import { ACTIVITY } from '../utils/enums/activity';
+import { ActivityEnum } from '../utils/enums/activity';
 
 export class ActivityDTO extends BaseResponseDTO {
   @ApiProperty({
@@ -40,11 +40,9 @@ export class ActivityDTO extends BaseResponseDTO {
   @ApiProperty({
     type: 'string',
     description: 'Accomplished activity',
-    enum: ACTIVITY,
+    enum: ActivityEnum,
   })
-  @IsEnum(ACTIVITY, {
-    message: `activity must be one of: ${ACTIVITY.join(', ')}`,
-  })
+  @IsEnum(ActivityEnum, { each: true })
   @IsString()
   @IsNotEmpty()
   activity: string;

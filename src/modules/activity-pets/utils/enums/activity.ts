@@ -1,1 +1,4 @@
-export const ACTIVITY = ['Água', 'Ração'];
+export enum ActivityEnum {
+  WATER = 'Água',
+  FOOD = 'Comida',
+}
