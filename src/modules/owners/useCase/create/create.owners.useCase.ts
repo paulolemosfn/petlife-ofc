@@ -1,13 +1,13 @@
-import { UsersRepository } from './../../../users/repositories/users.repository';
-import { OwnersEntity } from './../../entities/owners.entity';
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { OwnersRepository } from '../../repositories/owners.repository';
-import { CreateOwnersDTO } from './create.owners.dto';
+import { buildCreateWithUser } from '../../../../common/builders/user-data-general.builders';
 import { generateAlphaNumeric } from '../../../../common/functions/alphanumeric';
 import { DefaultHeadersInterface } from '../../../../common/interfaces/default-headers.interface';
-import { buildCreateWithUser } from '../../../../common/builders/user-data-general.builders';
 import { GetUsersByIdUseCase } from '../../../../modules/users/useCase/getById/getById.users.useCase';
+import { OwnersRepository } from '../../repositories/owners.repository';
+import { UsersRepository } from './../../../users/repositories/users.repository';
+import { OwnersEntity } from './../../entities/owners.entity';
+import { CreateOwnersDTO } from './create.owners.dto';
 
 @Injectable()
 export class CreateOwnersUseCase {
@@ -27,7 +27,6 @@ export class CreateOwnersUseCase {
     defaultHeaders: DefaultHeadersInterface,
   ): Promise<OwnersEntity> {
     const { user_id } = defaultHeaders;
-    const { ownersQuantity } = data;
 
     const dataToCreate: Partial<OwnersEntity> = data;
 
@@ -35,19 +34,15 @@ export class CreateOwnersUseCase {
 
     dataToCreate.user = userFound;
 
+    const ownersCount = await this.repository.count(userFound.owners as any);
+
+    // const [owners, count] = ownersCount;
+
     const code = generateAlphaNumeric({
       initials: 'DN',
-      totalQuantity: ownersQuantity,
+      totalQuantity: ownersCount,
       limit: 4,
     });
-
-    const ownersFound = await this.repository.findOne({
-      where: { code: code },
-    });
-
-    if (ownersFound) {
-      throw new ConflictException(`This code has already been registered`);
-    }
 
     const createData = {
       ...data,
@@ -57,7 +52,7 @@ export class CreateOwnersUseCase {
 
     const ownerDataToCreate = buildCreateWithUser(createData, defaultHeaders);
 
-    const ownerCreated = this.repository.save(ownerDataToCreate);
+    const ownerCreated = await this.repository.save(ownerDataToCreate);
 
     return ownerCreated;
   }

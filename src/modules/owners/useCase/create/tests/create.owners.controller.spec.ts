@@ -60,7 +60,6 @@ describe('Create Owner Controller Tests', () => {
 
       const buildowners: CreateOwnersDTO = {
         owner_name: 'Name',
-        ownersQuantity: 5,
       };
 
       const expectedRes = { ...buildowners, defaultHeaders } as any;
@@ -96,8 +95,6 @@ describe('Create Owner Controller Tests', () => {
         expect.arrayContaining([
           'owner_name must be a string',
           'owner_name should not be empty',
-          'ownersQuantity must be a number conforming to the specified constraints',
-          'ownersQuantity should not be empty',
         ]),
       );
       expect(createUseCaseSpy).not.toBeCalled();

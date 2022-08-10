@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateOwnersDTO {
   @ApiProperty({
@@ -9,12 +9,4 @@ export class CreateOwnersDTO {
   @IsNotEmpty()
   @IsString()
   owner_name: string;
-
-  @ApiProperty({
-    description: 'Quantity of owners',
-    example: 1,
-  })
-  @IsNotEmpty()
-  @IsNumber()
-  ownersQuantity: number;
 }
