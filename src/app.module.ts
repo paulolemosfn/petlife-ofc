@@ -9,12 +9,16 @@ import { UseremailRequestMiddleware } from './system/headers/middlewares/userema
 import { UsernameRequestMiddleware } from './system/headers/middlewares/username.middleware';
 import { UserIdRequestMiddleware } from './system/headers/middlewares/userId.middleware';
 import { UsersRepository } from './modules/users/repositories/users.repository';
+import { PetsModule } from './modules/pets/pets.module';
+import { ActivityModule } from './modules/activity-pets/activity.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(dbConfig),
     UsersModule,
     OwnersModule,
+    PetsModule,
+    ActivityModule,
     UsersRepository,
   ],
   controllers: [AppController],
@@ -28,6 +32,6 @@ export class AppModule {
         UseremailRequestMiddleware,
         UserIdRequestMiddleware,
       )
-      .forRoutes('owners', 'users/**');
+      .forRoutes('owners', 'users/**', 'pets', 'activity');
   }
 }
