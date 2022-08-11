@@ -23,9 +23,6 @@ export class OwnersEntity extends RelationalEntity {
   @Column()
   owner_name: string;
 
-  @Column()
-  code: string;
-
   @ManyToOne(() => UsersEntity)
   @JoinColumn({ name: 'user_id' })
   user: UsersEntity;

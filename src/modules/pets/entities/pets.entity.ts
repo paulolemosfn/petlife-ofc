@@ -22,9 +22,6 @@ export class PetsEntity extends RelationalEntity {
   user_id: string;
 
   @Column()
-  pet_code: string;
-
-  @Column()
   breed: string;
 
   @Column()
@@ -34,6 +31,7 @@ export class PetsEntity extends RelationalEntity {
   @JoinColumn({ name: 'user_id' })
   user: UsersEntity;
 
-  @OneToMany(() => OwnersEntity, (owners) => owners.pets, { eager: true })
-  owner: OwnersEntity;
+  // eslint-disable-next-line prettier/prettier
+  @OneToMany(() => OwnersEntity, owner => owner.pets)
+  owner?: OwnersEntity[];
 }

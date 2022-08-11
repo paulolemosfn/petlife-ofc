@@ -20,9 +20,9 @@ export class UsersEntity extends RelationalEntity {
   @Exclude({ toPlainOnly: true })
   password: string;
 
-  @OneToMany(() => OwnersEntity, (owner) => owner.user, { eager: true })
+  @OneToMany(() => OwnersEntity, (owner) => owner.user)
   owners: OwnersEntity[];
 
-  @OneToMany(() => PetsEntity, (pets) => pets.user, { eager: true })
+  @OneToMany(() => PetsEntity, (pets) => pets.user)
   pets: PetsEntity[];
 }

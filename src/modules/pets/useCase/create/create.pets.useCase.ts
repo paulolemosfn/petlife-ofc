@@ -47,22 +47,10 @@ export class CreatePetsUseCase {
       defaultHeaders,
     );
 
-    const petsQuantity = await this.repository.findAndCount(ownerFound.pets);
-
-    const code = generateAlphaNumeric({
-      initials: 'P',
-      totalQuantity: petsQuantity[1],
-      limit: 4,
-    });
-
-    dataToCreate.pet_code = code;
-
-    const createData = {
-      ...data,
-      user_id,
-    };
-
-    const petDataToCreate = buildCreateWithUser(createData, defaultHeaders);
+    const petDataToCreate = buildCreateWithUser(
+      { ...data, user_id },
+      defaultHeaders,
+    );
 
     const petCreated = await this.repository.save(petDataToCreate);
 
