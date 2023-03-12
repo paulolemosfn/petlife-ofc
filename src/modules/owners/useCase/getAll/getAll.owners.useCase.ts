@@ -1,66 +1,30 @@
-import { Repository } from 'typeorm';
-import { Inject, Injectable } from '@nestjs/common';
-import { OwnersRepository } from '../../repositories/owners.repository';
-import { OwnersEntity } from '../../entities/owners.entity';
-import { RequestGetAllInterface } from '../../../../common/interfaces/interfaces';
-import { GetAllPagedResponseInterface } from '../../../../common/interfaces/response/getAll.paged.response.interface';
-import {
-  formatParamsToTypeOrmOptionsWithPaginate,
-  formatPaginateDataToResponse,
-  formatParamsToTypeOrmOptionsWithoutPaginate,
-} from '../../../../common/lib';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DefaultHeadersInterface } from '../../../../common/interfaces/default-headers.interface';
+import { GetAllPagedResponseInterface } from '../../../../common/interfaces/response/getAll.paged.response.interface';
+import { OwnersEntity } from '../../entities/owners.entity';
+import { OwnersRepository } from '../../repositories/owners.repository';
+import { GetAllOwnersDTO } from './getAll.owners.dto';
 
 @Injectable()
 export class GetAllOwnersUseCase {
-  // private OwnersRepository: OwnersRepository;
-  private readonly repository: Repository<OwnersEntity>;
-
   constructor(
     @InjectRepository(OwnersRepository)
-    repository: Repository<OwnersEntity>,
-    // private OwnersRepository: OwnersRepository,
-  ) {
-    // super(OwnersRepository);
-    // this.OwnersRepository = OwnersRepository;
-    this.repository = repository;
-  }
+    private repository: OwnersRepository,
+  ) {}
 
   public async execute(
-    queryParams: RequestGetAllInterface,
-  ): Promise<OwnersEntity[]> {
-    return this.repository.find();
+    queryParams: GetAllOwnersDTO,
+    defaultHeaders: DefaultHeadersInterface,
+    showInactive: boolean,
+  ): Promise<OwnersEntity[] | GetAllPagedResponseInterface<OwnersEntity>> {
+    queryParams.user_id = defaultHeaders.user_id;
+
+    const showInactiveString = <any>showInactive === true ? 'true' : 'false';
+
+    return await this.repository.getAll({
+      ...queryParams,
+      showInactive: showInactiveString,
+    });
   }
-
-  // public async execute(
-  //   queryParams: RequestGetAllInterface,
-  // ): Promise<[OwnersEntity[], number]> {
-  //   return this.repository.findAndCount();
-  // }
-
-  //   queryParams: RequestGetAllInterface,
-  //   withPagination: boolean,
-  //   showInactive: boolean
-  // ): Promise<OwnersEntity[] | GetAllPagedResponseInterface<OwnersEntity>> {
-  //   if (withPagination) {
-  //     const options = formatParamsToTypeOrmOptionsWithPaginate(
-  //       queryParams,
-  //       showInactive,
-  //     );
-
-  //     const [data, count] = await this.repository.findAndCount(options);
-
-  //     return formatPaginateDataToResponse(queryParams, {
-  //       data,
-  //       count,
-  //     });
-  //   }
-
-  //   const options = formatParamsToTypeOrmOptionsWithoutPaginate(
-  //     queryParams,
-  //     showInactive,
-  //   );
-
-  //   return this.repository.find(options);
-  // }
 }

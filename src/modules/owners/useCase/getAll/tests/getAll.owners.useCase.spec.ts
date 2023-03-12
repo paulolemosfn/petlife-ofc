@@ -1,7 +1,10 @@
-import { TestingModule, Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { v4 as uuid } from 'uuid';
 import { OwnersRepository } from '../../../../../modules/owners/repositories/owners.repository';
+import { MockBuilderOwner } from '../../../utils/builders/owners.builder';
 import { GetAllOwnersUseCase } from '../getAll.owners.useCase';
+
 describe('Get All owners', () => {
   let getAllUseCase: GetAllOwnersUseCase;
   let repository: OwnersRepository;
@@ -13,7 +16,7 @@ describe('Get All owners', () => {
         {
           provide: getRepositoryToken(OwnersRepository),
           useValue: {
-            find: jest.fn(),
+            getAll: jest.fn(),
           },
         },
       ],
@@ -35,17 +38,35 @@ describe('Get All owners', () => {
     expect(repository).toBeDefined();
   });
 
+  const user_id = uuid();
+
+  const ownersData = new MockBuilderOwner().buildAll();
+
+  const defaultHeaders = {
+    username: ownersData.created_by_name,
+    useremail: ownersData.created_by_email,
+    user_id,
+  };
+
   it('should be return the all owners', async () => {
-    const queryParams = {};
+    const queryParams = {} as any;
 
-    const mockedResponse = [
-      [{ name: 'Cristiano' }, { name: 'Ronaldo' }],
-    ] as any;
+    const mockedResponse = { count: 2, data: [ownersData, ownersData] } as any;
 
-    jest.spyOn(repository, 'find').mockResolvedValue(mockedResponse);
+    const repositorySpy = jest
+      .spyOn(repository, 'getAll')
+      .mockResolvedValue(mockedResponse);
 
-    const getAll = await getAllUseCase.execute(queryParams);
+    const getAll = await getAllUseCase.execute(
+      queryParams,
+      defaultHeaders,
+      true,
+    );
 
     expect(getAll).toEqual(mockedResponse);
+    expect(repositorySpy).toHaveBeenNthCalledWith(1, {
+      ...queryParams,
+      showInactive: 'true',
+    });
   });
 });
