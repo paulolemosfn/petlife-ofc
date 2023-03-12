@@ -14,8 +14,8 @@ export interface UsersResponseInterface {
   updated_by_name: string;
   updated_by_email: string;
   active: boolean;
-  inactivation_date: string;
-  created_at: string;
-  updated_at: string;
+  inactivation_date: Date;
+  created_at: Date;
+  updated_at: Date;
   id: string;
 }
