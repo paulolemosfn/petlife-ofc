@@ -13,10 +13,12 @@ export class GetOwnerByIdUseCase {
 
   public async execute(
     id: string,
-    { user_id, ...userData }: DefaultHeadersInterface,
+    defaultHeaders: DefaultHeadersInterface,
   ): Promise<OwnersEntity> {
+    const { user_id } = defaultHeaders;
+
     const ownerFound = await this.repository.findOne({
-      where: { id, user_id },
+      where: { id, user_id, active: true },
     });
 
     if (!ownerFound) {

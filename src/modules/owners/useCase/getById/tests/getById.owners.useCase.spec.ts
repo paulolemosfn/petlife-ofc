@@ -57,7 +57,7 @@ describe('Get Owner By Id', () => {
 
     expect(result).toEqual(id);
     expect(getByIdSpy).toHaveBeenNthCalledWith(1, {
-      where: { id, user_id },
+      where: { id, user_id, active: true },
     });
   });
 
