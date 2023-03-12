@@ -7,13 +7,13 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserHeadersRequest } from '../../../../system/headers/paramDecorators/UserRequest';
+import { DefaultHeadersInterface } from '../../../../common/interfaces/default-headers.interface';
 import { CustomApiBadRequestResponse } from '../../../../system/decorators/swagger/apibadrequest.decorator';
+import { UserHeadersRequest } from '../../../../system/headers/paramDecorators/UserRequest';
 import { OwnersResponseDataDTO } from '../../dtos/owners.response.data.dto';
 import { CreateOwnersDTO } from './create.owners.dto';
 import { CreateOwnersUseCase } from './create.owners.useCase';
-import { DefaultHeadersInterface } from '../../../../common/interfaces/default-headers.interface';
-import { OwnersEntity } from '../../entities/owners.entity';
+import { CreateOwnerResponseDTO } from './dtos/response/create-owner.response.dto';
 
 @ApiTags('Owners')
 @ApiHeader({
@@ -48,7 +48,12 @@ export class CreateOwnersController {
   public async handle(
     @Body() createOwnersData: CreateOwnersDTO,
     @UserHeadersRequest() defaultHeaders: DefaultHeadersInterface,
-  ): Promise<OwnersEntity> {
-    return this.createOwnersUseCase.execute(createOwnersData, defaultHeaders);
+  ): Promise<CreateOwnerResponseDTO> {
+    const result = await this.createOwnersUseCase.execute(
+      createOwnersData,
+      defaultHeaders,
+    );
+
+    return new CreateOwnerResponseDTO(result);
   }
 }

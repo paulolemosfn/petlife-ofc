@@ -1,15 +1,16 @@
-import { UsersRepository } from './../../../../users/repositories/users.repository';
-import { OwnersRepository } from './../../../repositories/owners.repository';
-import { INestApplication, ValidationPipe, HttpStatus } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as request from 'supertest';
 import { v4 as uuid } from 'uuid';
-import { CreateOwnersController } from '../create.owners.controller';
-import { CreateOwnersUseCase } from '../create.owners.useCase';
 import { DefaultHeadersInterface } from '../../../../../common/interfaces/default-headers.interface';
 import { GetUsersByIdUseCase } from '../../../../../modules/users/useCase/getById/getById.users.useCase';
+import { MockBuilderOwner } from '../../../utils/builders/owners.builder';
+import { CreateOwnersController } from '../create.owners.controller';
 import { CreateOwnersDTO } from '../create.owners.dto';
+import { CreateOwnersUseCase } from '../create.owners.useCase';
+import { UsersRepository } from './../../../../users/repositories/users.repository';
+import { OwnersRepository } from './../../../repositories/owners.repository';
 
 describe('Create Owner Controller Tests', () => {
   let app: INestApplication;
@@ -49,35 +50,34 @@ describe('Create Owner Controller Tests', () => {
   });
 
   describe('POST /owners', () => {
+    const user_id = uuid();
+    const defaultHeaders: DefaultHeadersInterface = {
+      user_id,
+      username: 'Create Test',
+      useremail: 'create@test.com',
+    };
+
     it('Should create a owner', async () => {
-      const user_id = uuid();
+      const createOwner = new MockBuilderOwner().buildAll() as any;
 
-      const defaultHeaders: DefaultHeadersInterface = {
-        user_id,
-        username: 'Create Test',
-        useremail: 'create@test.com',
+      const buildOwners: CreateOwnersDTO = {
+        owner_name: createOwner.owner_name,
       };
-
-      const buildowners: CreateOwnersDTO = {
-        owner_name: 'Name',
-      };
-
-      const expectedRes = { ...buildowners, defaultHeaders } as any;
 
       const createUseCaseSpy = jest
         .spyOn(createUseCase, 'execute')
-        .mockResolvedValue(expectedRes);
+        .mockResolvedValue(createOwner);
 
       const result = await request(app.getHttpServer())
         .post(`/owners`)
         .set(defaultHeaders)
-        .send(buildowners)
+        .send(buildOwners)
         .expect(HttpStatus.CREATED);
 
-      expect(result.body).toEqual(expectedRes);
+      expect(result.body).toEqual(createOwner);
       expect(createUseCaseSpy).toHaveBeenNthCalledWith(
         1,
-        buildowners,
+        buildOwners,
         defaultHeaders,
       );
     });

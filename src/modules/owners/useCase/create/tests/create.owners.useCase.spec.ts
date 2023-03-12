@@ -5,6 +5,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { OwnersRepository } from './../../../repositories/owners.repository';
 import { CreateOwnersUseCase } from './../create.owners.useCase';
 import { UsersRepository } from '../../../../../modules/users/repositories/users.repository';
+import { MockBuilderUser } from '../../../../users/utils/builders/users.builder';
+import { MockBuilderOwner } from '../../../utils/builders/owners.builder';
+import { BadRequestException } from '@nestjs/common';
 
 describe('Create owners use case context', () => {
   let createUseCase: CreateOwnersUseCase;
@@ -19,9 +22,8 @@ describe('Create owners use case context', () => {
         {
           provide: getRepositoryToken(OwnersRepository),
           useValue: {
-            count: jest.fn(),
-            findAndCount: jest.fn(),
             save: jest.fn(),
+            getOwnerByUserId: jest.fn(),
           },
         },
         {
@@ -46,41 +48,14 @@ describe('Create owners use case context', () => {
     jest.resetAllMocks();
   });
 
-  const buildowners = {
-    owner_name: 'Name',
-  };
   const user_id = uuid();
 
   it('should be able to create a new owner', async () => {
-    const mockUser = {
-      active: true,
-      inactivation_date: null,
-      created_at: '2021-12-24T05:50:49.830Z',
-      updated_at: '2021-12-24T05:50:49.830Z',
-      created_by_name: 'NETO',
-      created_by_email: 'NETO@NETO.com.br',
-      updated_by_name: 'NETO',
-      updated_by_email: 'NETO@NETO.com.br',
-      id: 'a34df91e-60ac-4fde-9487-c4b9d33a835d',
-      name: 'NETO',
-      email: 'NETO@NETO.com.br',
-      owners: [],
-    } as any;
+    const mockUser = new MockBuilderUser().withActive(true).buildAll() as any;
 
-    const createOwner = {
-      ...buildowners,
-      created_at: '2021-12-20T18:25:10.415Z',
-      created_by_name: 'create user name',
-      created_by_email: 'create@teste.com.br',
-      updated_at: '2021-12-20T18:25:10.416Z',
-      updated_by_email: 'create@teste.com.br',
-      updated_by_name: 'create user name',
-      active: true,
-      inactivation_date: '2021-12-20T18:25:10.416Z',
-      id: 'fb5c9676-4e28-4daa-8efa-375512451f8f',
-      code: 'DN01',
-      user: { mockUser },
-    };
+    const createOwner = new MockBuilderOwner()
+      .withActive(true)
+      .buildAll() as any;
 
     const defaultHeaders = {
       username: createOwner.created_by_name,
@@ -92,7 +67,9 @@ describe('Create owners use case context', () => {
       .spyOn(getUserById, 'execute')
       .mockResolvedValue(mockUser);
 
-    const ownersCountSpy = jest.spyOn(repository, 'count').mockResolvedValue(0);
+    const getOwnerByIdSpy = jest
+      .spyOn(repository, 'getOwnerByUserId')
+      .mockResolvedValue(undefined);
 
     const expectedRes = {
       ...createOwner,
@@ -107,7 +84,51 @@ describe('Create owners use case context', () => {
 
     expect(result).toEqual(expectedRes);
     expect(usersFoundSpy).toHaveBeenNthCalledWith(1, user_id, defaultHeaders);
-    expect(ownersCountSpy).toHaveBeenNthCalledWith(1, []);
+    expect(getOwnerByIdSpy).toHaveBeenNthCalledWith(1, user_id);
     expect(saveSpy).toHaveBeenNthCalledWith(1, expectedRes);
+  });
+
+  it('Bad Request Exception - There is already a pet owner registered for the user ${userFound.name}', async () => {
+    const mockUser = new MockBuilderUser()
+      .withId(user_id)
+      .withActive(true)
+      .buildAll() as any;
+
+    const createOwner = new MockBuilderOwner()
+      .withActive(true)
+      .buildAll() as any;
+
+    const defaultHeaders = {
+      username: createOwner.created_by_name,
+      useremail: createOwner.created_by_email,
+      user_id,
+    };
+
+    const usersFoundSpy = jest
+      .spyOn(getUserById, 'execute')
+      .mockResolvedValue(mockUser);
+
+    const getOwnerByIdSpy = jest
+      .spyOn(repository, 'getOwnerByUserId')
+      .mockResolvedValue(createOwner);
+
+    const saveSpy = jest.spyOn(repository, 'save');
+
+    try {
+      await createUseCase.execute({ owner_name: 'Teste' }, defaultHeaders);
+    } catch (error) {
+      expect(error.message).toBe(
+        `There is already a pet owner registered for the user ${mockUser.name}`,
+      );
+      expect(error.status).toBe(400);
+      expect(error).toBeInstanceOf(BadRequestException);
+      expect(usersFoundSpy).toHaveBeenNthCalledWith(
+        1,
+        mockUser.id,
+        defaultHeaders,
+      );
+      expect(getOwnerByIdSpy).toHaveBeenNthCalledWith(1, mockUser.id);
+      expect(saveSpy).not.toBeCalled();
+    }
   });
 });

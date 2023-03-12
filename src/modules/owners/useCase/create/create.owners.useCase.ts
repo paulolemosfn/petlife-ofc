@@ -1,7 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { buildCreateWithUser } from '../../../../common/builders/user-data-general.builders';
-import { generateAlphaNumeric } from '../../../../common/functions/alphanumeric';
 import { DefaultHeadersInterface } from '../../../../common/interfaces/default-headers.interface';
 import { GetUsersByIdUseCase } from '../../../../modules/users/useCase/getById/getById.users.useCase';
 import { OwnersRepository } from '../../repositories/owners.repository';
@@ -28,29 +27,23 @@ export class CreateOwnersUseCase {
   ): Promise<OwnersEntity> {
     const { user_id } = defaultHeaders;
 
-    const dataToCreate: Partial<OwnersEntity> = data;
-
     const userFound = await this.getUserById.execute(user_id, defaultHeaders);
 
-    dataToCreate.user = userFound;
+    const ownerExists = await this.repository.getOwnerByUserId(user_id);
 
-    const ownersCount = await this.repository.count(userFound.owners as any);
+    if (ownerExists) {
+      throw new BadRequestException(
+        `There is already a pet owner registered for the user ${userFound.name}`,
+      );
+    }
 
-    // const [owners, count] = ownersCount;
-
-    const code = generateAlphaNumeric({
-      initials: 'DN',
-      totalQuantity: ownersCount,
-      limit: 4,
-    });
-
-    const createData = {
-      ...data,
-      user_id,
-      code,
-    };
-
-    const ownerDataToCreate = buildCreateWithUser(createData, defaultHeaders);
+    const ownerDataToCreate = buildCreateWithUser(
+      {
+        ...data,
+        user_id,
+      },
+      defaultHeaders,
+    );
 
     const ownerCreated = await this.repository.save(ownerDataToCreate);
 
