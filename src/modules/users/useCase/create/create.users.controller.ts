@@ -5,12 +5,12 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateUsersDTO } from './create.users.dto';
-import { CreateUsersUseCase } from './create.users.useCase';
-import { CustomApiBadRequestResponse } from '../../../../system/decorators/swagger/apibadrequest.decorator';
 import { CustomApiResponseWrapper } from '../../../../system/decorators/swagger/api-response-wrapper.decorator';
-import { UsersEntity } from '../../entities/users.entity';
+import { CustomApiBadRequestResponse } from '../../../../system/decorators/swagger/apibadrequest.decorator';
 import { UsersResponseDTO } from '../../dtos/users.response.dto';
+import { CreateUsersUseCase } from './create.users.useCase';
+import { CreateUsersRequestDTO } from './dtos/request/create.users.request.dto';
+import { CreateUsersResponseDTO } from './dtos/response/create.users.response.dto';
 
 @ApiTags('Users')
 @ApiBadRequestResponse({
@@ -30,7 +30,11 @@ export class CreateUsersController {
     description: 'The record has been successfully stored',
     type: UsersResponseDTO,
   })
-  async handle(@Body() createUsersDTO: CreateUsersDTO): Promise<UsersEntity> {
-    return await this.createUsersUseCase.execute(createUsersDTO);
+  async handle(
+    @Body() createUsersDTO: CreateUsersRequestDTO,
+  ): Promise<CreateUsersResponseDTO> {
+    const res = await this.createUsersUseCase.execute(createUsersDTO);
+
+    return new CreateUsersResponseDTO(res);
   }
 }

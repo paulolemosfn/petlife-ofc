@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { encodePassword } from '../../../../common/functions/bcrypt';
+import { encodePassword as cryptoPassword } from '../../../../common/functions/bcrypt';
 import { buildUserCreate } from '../../builders/user-data.builders';
 import { UsersRepository } from '../../repositories/users.repository';
 import { UsersEntity } from './../../entities/users.entity';
-import { CreateUsersDTO } from './create.users.dto';
+import { CreateUsersRequestDTO } from './dtos/request/create.users.request.dto';
 
 @Injectable()
 export class CreateUsersUseCase {
@@ -13,14 +13,14 @@ export class CreateUsersUseCase {
     private readonly repository: UsersRepository,
   ) {}
 
-  public async execute(data: CreateUsersDTO): Promise<UsersEntity> {
+  public async execute(data: CreateUsersRequestDTO): Promise<UsersEntity> {
     const userExists = await this.repository.findOne({
       where: { email: data.email },
     });
 
     if (userExists) {
       throw new BadRequestException(
-        `The email ${data.email} has already been registered`,
+        `The email ${data.email} has already been registered for other user`,
       );
     }
 
@@ -28,7 +28,7 @@ export class CreateUsersUseCase {
       throw new BadRequestException('Use the same passwords');
     }
 
-    const password = encodePassword(data.password);
+    const password = cryptoPassword(data.password);
 
     const createData = {
       ...data,

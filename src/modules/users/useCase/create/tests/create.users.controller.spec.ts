@@ -5,7 +5,7 @@ import * as request from 'supertest';
 import { UsersRepository } from '../../../../../modules/users/repositories/users.repository';
 import { CreateUsersController } from '../create.users.controller';
 import { CreateUsersUseCase } from '../create.users.useCase';
-import { CreateUsersDTO } from '../create.users.dto';
+import { CreateUsersRequestDTO } from '../dtos/request/create.users.request.dto';
 
 describe('Suite Tests Create Users', () => {
   let app: INestApplication;
@@ -40,7 +40,7 @@ describe('Suite Tests Create Users', () => {
 
   describe('POST /users', () => {
     it('POST /users', async () => {
-      const createUser: CreateUsersDTO = {
+      const createUser: CreateUsersRequestDTO = {
         name: 'name',
         email: 'name@name.com',
         password: '%?luZkP1JN7j',
@@ -51,13 +51,18 @@ describe('Suite Tests Create Users', () => {
         .spyOn(createUseCase, 'execute')
         .mockResolvedValue(<any>createUser);
 
+      const expectedRes = {
+        name: createUser.name,
+        email: createUser.email,
+      };
+
       const result = await request(app.getHttpServer())
         .post(`/users`)
         .set({})
         .send(createUser)
         .expect(HttpStatus.CREATED);
 
-      expect(result.body).toEqual(createUser);
+      expect(result.body).toEqual(expectedRes);
       expect(createUseCaseSpy).toHaveBeenNthCalledWith(1, createUser);
     });
 

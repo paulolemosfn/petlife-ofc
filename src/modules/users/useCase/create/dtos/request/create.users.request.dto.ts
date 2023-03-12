@@ -7,9 +7,9 @@ import {
   MaxLength,
   Matches,
 } from 'class-validator';
-import { Match } from '../../../../common/utils/match.decorator';
+import { Match } from '../../../../../../common/utils/match.decorator';
 
-export class CreateUsersDTO {
+export class CreateUsersRequestDTO {
   @ApiProperty({
     description: 'name',
     example: 'Name',

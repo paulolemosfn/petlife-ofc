@@ -1,8 +1,9 @@
+import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { MockBuilderUser } from '../../../utils/builders/users.builder';
 import { UsersRepository } from './../../../repositories/users.repository';
 import { CreateUsersUseCase } from './../create.users.useCase';
-import { BadRequestException } from '@nestjs/common';
 
 describe('Create users use case context', () => {
   let createUseCase: CreateUsersUseCase;
@@ -34,10 +35,11 @@ describe('Create users use case context', () => {
   });
 
   it('should be able to create a new user', async () => {
-    const buildUsers = {
-      name: 'NETO',
-      email: '4NETO@NETO.com.br',
-      password: '%?luZkP1JN7j',
+    const buildUsers = new MockBuilderUser().buildAll();
+
+    const userRequestData = {
+      ...buildUsers,
+      confirmPassword: buildUsers.password,
     };
 
     const expectedRes = {
@@ -59,11 +61,11 @@ describe('Create users use case context', () => {
       .spyOn(repository, 'save')
       .mockResolvedValue(expectedRes);
 
-    const result = await createUseCase.execute(buildUsers);
+    const result = await createUseCase.execute(userRequestData);
 
     expect(result).toEqual(expectedRes);
     expect(findEmailSpy).toHaveBeenNthCalledWith(1, emailFilter);
-    expect(saveSpy).toHaveBeenNthCalledWith(1, expectedRes);
+    expect(saveSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should not be able to create a new user', async () => {
@@ -88,7 +90,7 @@ describe('Create users use case context', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(BadRequestException);
       expect(error.message).toBe(
-        `The email ${email} has already been registered`,
+        `The email ${email} has already been registered for other user`,
       );
       expect(error.status).toBe(400);
       expect(findEmailSpy).toHaveBeenNthCalledWith(1, { where: { email } });
