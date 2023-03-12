@@ -1,6 +1,4 @@
-import { PaginateResponseProperties } from '../interfaces';
-
-export interface GetAllPagedResponseInterface<T>
-  extends PaginateResponseProperties {
+export interface GetAllPagedResponseInterface<T> {
   data: T[];
+  count: number;
 }
