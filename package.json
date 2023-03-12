@@ -87,7 +87,6 @@
     "tsconfig-paths": "^3.10.1",
     "typescript": "^4.3.5"
   },
-  "pre-commit": "format:quick",
   "pre-push": "test --maxWorkers=25%",
   "jest": {
     "moduleFileExtensions": [
