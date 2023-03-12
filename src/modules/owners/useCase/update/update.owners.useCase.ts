@@ -1,10 +1,10 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { buildUpdateWithUser } from '../../../../common/builders/user-data-general.builders';
+import { OwnersEntity } from '../../entities/owners.entity';
+import { GetOwnerByIdUseCase } from '../getById/getById.owners.useCase';
 import { DefaultHeadersInterface } from './../../../../common/interfaces/default-headers.interface';
 import { OwnersRepository } from './../../repositories/owners.repository';
-import { Inject, Injectable, BadRequestException } from '@nestjs/common';
-import { GetOwnerByIdUseCase } from '../getById/getById.owners.useCase';
-import { InjectRepository } from '@nestjs/typeorm';
-import { OwnersEntity } from '../../entities/owners.entity';
-import { buildUpdateWithUser } from '../../../../common/builders/user-data-general.builders';
 import { UpdateOwnersDTO } from './update.owners.dto';
 
 @Injectable()
@@ -26,10 +26,6 @@ export class UpdateOwnersUseCase {
       id,
       defaultHeaders,
     );
-
-    if (!foundOwner.active) {
-      throw new BadRequestException('You cannot update an inactive owner');
-    }
 
     const build = buildUpdateWithUser(
       { ...foundOwner, ...updateOwnerData },

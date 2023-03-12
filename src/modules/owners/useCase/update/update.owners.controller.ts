@@ -1,20 +1,20 @@
-import { DefaultHeadersInterface } from './../../../../common/interfaces/default-headers.interface';
 import { Body, Controller, Param, Put } from '@nestjs/common';
-import { UserHeadersRequest } from '../../../../system/headers/paramDecorators/UserRequest';
-import { UpdateOwnersDTO } from './update.owners.dto';
-import { OwnersEntity } from '../../entities/owners.entity';
-import { UpdateOwnersUseCase } from './update.owners.useCase';
 import {
-  ApiTags,
-  ApiHeader,
   ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiHeader,
   ApiInternalServerErrorResponse,
   ApiOperation,
-  ApiCreatedResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { IdRequestDTO } from '../../../../common/dtos/id-request.dto';
 import { CustomApiBadRequestResponse } from '../../../../system/decorators/swagger/apibadrequest.decorator';
+import { UserHeadersRequest } from '../../../../system/headers/paramDecorators/UserRequest';
 import { OwnersResponseDataDTO } from '../../dtos/owners.response.data.dto';
+import { DefaultHeadersInterface } from './../../../../common/interfaces/default-headers.interface';
+import { UpdateOwnerResponseDTO } from './dtos/response/update-owner.response.dto';
+import { UpdateOwnersDTO } from './update.owners.dto';
+import { UpdateOwnersUseCase } from './update.owners.useCase';
 
 @ApiTags('Owners')
 @ApiHeader({
@@ -50,7 +50,13 @@ export class UpdateOwnersController {
     @Param() { id }: IdRequestDTO,
     @Body() data: UpdateOwnersDTO,
     @UserHeadersRequest() defaultHeaders: DefaultHeadersInterface,
-  ): Promise<OwnersEntity> {
-    return await this.updateOwnersUseCase.execute(id, data, defaultHeaders);
+  ): Promise<UpdateOwnerResponseDTO> {
+    const result = await this.updateOwnersUseCase.execute(
+      id,
+      data,
+      defaultHeaders,
+    );
+
+    return new UpdateOwnerResponseDTO(result);
   }
 }
