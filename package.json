@@ -27,6 +27,8 @@
     "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js"
   },
   "dependencies": {
+    "@fnando/cnpj": "^1.0.2",
+    "@fnando/cpf": "github:fnando/cpf",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/jwt": "^8.0.0",
@@ -41,6 +43,7 @@
     "class-validator": "^0.13.1",
     "date-fns": "^2.28.0",
     "dotenv": "^10.0.0",
+    "express-session": "^1.17.3",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
@@ -54,12 +57,14 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
     "@nestjs/cli": "^8.0.0",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",
     "@types/axios": "^0.14.0",
     "@types/bcrypt": "^5.0.0",
     "@types/express": "^4.17.13",
+    "@types/express-session": "^1.17.5",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.0.0",
     "@types/passport-jwt": "^3.0.6",
