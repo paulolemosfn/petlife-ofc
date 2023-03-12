@@ -1,4 +1,3 @@
-import * as bodyParser from 'body-parser';
 import {
   BadRequestException,
   RequestMethod,
@@ -7,17 +6,12 @@ import {
 } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-
 import { AppModule } from './app.module';
 import { BadRequestExceptionFilter } from './system/filters/badrequest.exception';
 import { TransformInterceptor } from './system/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  app.use(bodyParser.json({ limit: '1mb' }));
-  app.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
-
   app.enableCors();
 
   app.setGlobalPrefix('api', {
