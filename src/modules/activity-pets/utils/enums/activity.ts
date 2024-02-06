@@ -1,4 +1,6 @@
 export enum ActivityEnum {
-  WATER = 'Água',
-  FOOD = 'Comida',
+  WATER = 'WATER',
+  FOOD = 'FOOD',
+  STROLL = 'STROLL',
+  PHYSIOLOGICAL_NEEDS = 'PHYSIOLOGICAL NEEDS',
 }
